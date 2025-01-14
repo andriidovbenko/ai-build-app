@@ -111,28 +111,71 @@
 }
 
 .header {
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Match header width with preview modes */
+.preview.desktop + .header,
+.header.desktop {
+  width: 90%;
+}
+
+.preview.tablet + .header,
+.header.tablet {
+  width: 768px;
+}
+
+.preview.mobile + .header,
+.header.mobile {
+  width: 375px;
 }
 
 .templateName {
   margin: 0;
   font-size: 1.5rem;
   color: #333;
+  padding: 0.5rem 1rem;
 }
 
 .nameInput {
   font-size: 1.5rem;
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   width: 100%;
-  max-width: 400px;
   margin: 0;
 }
 
 @media (max-width: 1024px) {
   .preview.desktop {
     min-width: unset;
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .preview.desktop + .header,
+  .header.desktop {
+    width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .preview.tablet + .header,
+  .header.tablet {
+    width: 95%;
+  }
+  
+  .preview.desktop + .header,
+  .header.desktop {
+    width: 100%;
+  }
+}
+
+@media (max-width: 375px) {
+  .preview.mobile + .header,
+  .header.mobile {
     width: 100%;
   }
 } 

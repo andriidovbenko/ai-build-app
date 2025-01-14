@@ -80,7 +80,7 @@ export const TemplatePreview: React.FC<TemplatePreviewProps> = ({
         </div>
       </div>
 
-      <div className={styles.header}>
+      <div className={`${styles.header} ${styles[template.previewMode]}`}>
         {isEditing ? (
           <input
             type="text"

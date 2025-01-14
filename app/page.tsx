@@ -1,95 +1,81 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useState } from 'react';
+import { Template, TemplatePreview } from '../src/components/TemplatePreview/TemplatePreview';
+import { TemplateSidebar } from '../src/components/TemplateSidebar/TemplateSidebar';
+import styles from './page.module.css';
+
+const DEFAULT_TEMPLATE: Template = {
+  id: 'new',
+  name: 'New Template',
+  content: 'Start typing your content here...',
+  previewMode: 'desktop' as const,
+};
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [currentPreviewMode, setCurrentPreviewMode] = useState<Template['previewMode']>('desktop');
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
+  const handleSave = (template: Template) => {
+    const isNew = template.id === 'new';
+    const updatedTemplate = {
+      ...template,
+      id: isNew ? Date.now().toString() : template.id,
+      previewMode: currentPreviewMode,
+    };
+
+    setTemplates(prev => {
+      if (isNew) {
+        return [...prev, updatedTemplate];
+      }
+      return prev.map(t => t.id === template.id ? updatedTemplate : t);
+    });
+    
+    setSelectedTemplate(updatedTemplate);
+  };
+
+  const handleNewTemplate = () => {
+    const newTemplate = { ...DEFAULT_TEMPLATE, previewMode: currentPreviewMode };
+    setSelectedTemplate(newTemplate);
+  };
+
+  const handleTemplateSelect = (template: Template) => {
+    setSelectedTemplate({ ...template, previewMode: currentPreviewMode });
+  };
+
+  const handlePreviewModeChange = (mode: Template['previewMode']) => {
+    setCurrentPreviewMode(mode);
+    if (selectedTemplate) {
+      setSelectedTemplate({ ...selectedTemplate, previewMode: mode });
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      <TemplateSidebar
+        templates={templates}
+        onTemplateSelect={handleTemplateSelect}
+        selectedTemplateId={selectedTemplate?.id}
+        onNewTemplate={handleNewTemplate}
+      />
+      <main className={styles.main}>
+        {selectedTemplate ? (
+          <TemplatePreview
+            initialTemplate={selectedTemplate}
+            onSave={handleSave}
+            initialEditMode={true}
+            onPreviewModeChange={handlePreviewModeChange}
+          />
+        ) : (
+          <div className={styles.empty}>
+            <p>Select a template or</p>
+            <button onClick={handleNewTemplate} className={styles.newButton}>
+              Create New Template
+            </button>
+          </div>
+        )}
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

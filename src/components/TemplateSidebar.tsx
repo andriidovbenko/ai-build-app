@@ -1,8 +1,9 @@
 "use client";
 
-import { Box, Button, Flex, Heading, Stack } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+import { Box, Button, Flex, Heading, Stack, useDisclosure } from '@chakra-ui/react';
+import { useState, useEffect, useRef } from 'react';
 import { useTemplate } from '@/contexts/TemplateContext';
+import { DeleteConfirmation } from './DeleteConfirmation';
 
 export const TemplateSidebar = () => {
   const { 
@@ -13,6 +14,9 @@ export const TemplateSidebar = () => {
     deleteTemplate 
   } = useTemplate();
   const [isOpen, setIsOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
+  const { isOpen: isAlertOpen, onOpen: onAlertOpen, onClose: onAlertClose } = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,7 +34,16 @@ export const TemplateSidebar = () => {
 
   const handleDelete = (e: React.MouseEvent, templateId: string) => {
     e.stopPropagation();
-    deleteTemplate(templateId);
+    setTemplateToDelete(templateId);
+    onAlertOpen();
+  };
+
+  const confirmDelete = () => {
+    if (templateToDelete) {
+      deleteTemplate(templateToDelete);
+      setTemplateToDelete(null);
+    }
+    onAlertClose();
   };
 
   return (
@@ -92,7 +105,6 @@ export const TemplateSidebar = () => {
                   bg="#ff4444"
                   color="white"
                   _hover={{ bg: '#ff0000' }}
-                  size="sm"
                   px="0.5rem"
                 >
                   ✕
@@ -102,6 +114,13 @@ export const TemplateSidebar = () => {
           </Stack>
         </Stack>
       </Box>
+      
+      <DeleteConfirmation
+        isOpen={isAlertOpen}
+        onClose={onAlertClose}
+        onConfirm={confirmDelete}
+        cancelRef={cancelRef}
+      />
     </>
   );
 }; 

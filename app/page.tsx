@@ -1,99 +1,47 @@
 "use client";
 
-import { useState } from 'react';
-import { Template, TemplatePreview } from '../src/components/TemplatePreview/TemplatePreview';
-import { TemplateSidebar } from '../src/components/TemplateSidebar/TemplateSidebar';
-import { Toast } from '../src/components/Toast/Toast';
-import styles from './page.module.css';
-
-const DEFAULT_TEMPLATE: Template = {
-  id: 'new',
-  name: 'New Template',
-  content: 'Start typing your content here...',
-  previewMode: 'desktop' as const,
-};
+import { useTemplate } from '@/contexts/TemplateContext';
+import { TemplatePreview } from '@/components/TemplatePreview';
+import { TemplateSidebar } from '@/components/TemplateSidebar';
+import { useToast } from '@chakra-ui/react';
+import { Flex, Box, Text, Button, VStack } from '@chakra-ui/react';
 
 export default function Home() {
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-  const [currentPreviewMode, setCurrentPreviewMode] = useState<Template['previewMode']>('desktop');
-  const [showToast, setShowToast] = useState(false);
-
-  const handleSave = (template: Template) => {
-    const isNew = template.id === 'new';
-    const updatedTemplate = {
-      ...template,
-      id: isNew ? Date.now().toString() : template.id,
-      previewMode: currentPreviewMode,
-    };
-
-    setTemplates(prev => {
-      if (isNew) {
-        return [...prev, updatedTemplate];
-      }
-      return prev.map(t => t.id === template.id ? updatedTemplate : t);
-    });
-    
-    setSelectedTemplate(updatedTemplate);
-    setShowToast(true);
-  };
-
-  const handleNewTemplate = () => {
-    const newTemplate = { ...DEFAULT_TEMPLATE, previewMode: currentPreviewMode };
-    setSelectedTemplate(newTemplate);
-  };
-
-  const handleTemplateSelect = (template: Template) => {
-    setSelectedTemplate({ ...template, previewMode: currentPreviewMode });
-  };
-
-  const handlePreviewModeChange = (mode: Template['previewMode']) => {
-    setCurrentPreviewMode(mode);
-    if (selectedTemplate) {
-      setSelectedTemplate({ ...selectedTemplate, previewMode: mode });
-    }
-  };
-
-  const handleDeleteTemplate = (templateId: string) => {
-    setTemplates(prev => prev.filter(t => t.id !== templateId));
-    if (selectedTemplate?.id === templateId) {
-      setSelectedTemplate(null);
-    }
-    setShowToast(true);
-  };
+  const { selectedTemplate, createNewTemplate } = useTemplate();
+  const toast = useToast();
 
   return (
-    <div className={styles.container}>
-      <TemplateSidebar
-        templates={templates}
-        onTemplateSelect={handleTemplateSelect}
-        selectedTemplateId={selectedTemplate?.id}
-        onNewTemplate={handleNewTemplate}
-        onDeleteTemplate={handleDeleteTemplate}
-      />
-      <main className={styles.main}>
+    <Flex w="100%" minH="100vh">
+      <TemplateSidebar />
+      <Box 
+        as="main" 
+        flex={1} 
+        p={4}
+        display="flex"
+        alignItems="flex-start"
+        justifyContent="center"
+      >
         {selectedTemplate ? (
-          <TemplatePreview
-            initialTemplate={selectedTemplate}
-            onSave={handleSave}
-            initialEditMode={selectedTemplate.id === 'new'}
-            onPreviewModeChange={handlePreviewModeChange}
-          />
+          <TemplatePreview />
         ) : (
-          <div className={styles.empty}>
-            <p>Select a template or</p>
-            <button onClick={handleNewTemplate} className={styles.newButton}>
+          <VStack 
+            spacing={4} 
+            p={8} 
+            borderRadius="md" 
+            bg="gray.50"
+            mt={20}
+          >
+            <Text>Select a template or</Text>
+            <Button
+              onClick={createNewTemplate}
+              bg="#ffd700"
+              _hover={{ bg: '#ffed4a' }}
+            >
               Create New Template
-            </button>
-          </div>
+            </Button>
+          </VStack>
         )}
-      </main>
-      {showToast && (
-        <Toast 
-          message={selectedTemplate ? "Template was saved" : "Template was deleted"} 
-          onClose={() => setShowToast(false)}
-        />
-      )}
-    </div>
+      </Box>
+    </Flex>
   );
 }

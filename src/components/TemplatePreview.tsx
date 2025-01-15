@@ -71,6 +71,7 @@ export const TemplatePreview = () => {
   return (
     <VStack spacing={4} w="100%" p={4}>
       <Box
+        mt={{ base: '40px', md: '0' }}
         w="100%"
         bg="gray.100"
         p={4}
@@ -120,7 +121,8 @@ export const TemplatePreview = () => {
       </Box>
 
       <MotionBox 
-        w={getPreviewWidth()} 
+        w={getPreviewWidth()}
+        maxW={'100%'}
         mx="auto"
         layout
         transition={{ duration: 0.3 }}

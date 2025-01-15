@@ -1,13 +1,13 @@
 "use client";
 
 import { TemplatePreview } from '@/components/TemplatePreview';
+import { Box } from '@chakra-ui/react';
 
 function App() {
   return (
-    <div>
-      <h1>Template Preview</h1>
+    <Box>
       <TemplatePreview />
-    </div>
+    </Box>
   );
 }
 

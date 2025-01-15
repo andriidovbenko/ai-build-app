@@ -9,7 +9,8 @@ import {
   Textarea, 
   HStack, 
   VStack,
-  Text
+  Text,
+  useToast
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Template } from '@/types/Template';
@@ -30,6 +31,7 @@ export const TemplatePreview = () => {
     setPreviewMode,
     currentPreviewMode
   } = useTemplate();
+  const toast = useToast();
 
   const [template, setTemplate] = useState<Template>(selectedTemplate!);
   const [isEditing, setIsEditing] = useState(selectedTemplate?.id === 'new');
@@ -53,8 +55,34 @@ export const TemplatePreview = () => {
   };
 
   const handleSave = () => {
+    if (!template.name.trim()) {
+      toast({
+        description: "Please enter a template name",
+        status: 'error',
+        duration: 3000,
+        position: 'bottom',
+      });
+      return;
+    }
+
+    if (!template.content.trim()) {
+      toast({
+        description: "Please enter some content",
+        status: 'error',
+        duration: 3000,
+        position: 'bottom',
+      });
+      return;
+    }
+
     addTemplate(template);
     setIsEditing(false);
+    toast({
+      description: "Template saved successfully",
+      status: 'success',
+      duration: 3000,
+      position: 'bottom',
+    });
   };
 
   const getPreviewWidth = () => {

@@ -200,3 +200,14 @@ a.secondary {
 .newButton:hover {
   background-color: #ffed4a;
 }
+
+@media (max-width: 768px) {
+  .container {
+    position: relative;
+  }
+
+  .main {
+    width: 100%;
+    padding-left: 4rem; /* Make space for the toggle button */
+  }
+}

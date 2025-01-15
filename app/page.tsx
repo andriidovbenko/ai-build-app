@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Template, TemplatePreview } from '../src/components/TemplatePreview/TemplatePreview';
 import { TemplateSidebar } from '../src/components/TemplateSidebar/TemplateSidebar';
+import { Toast } from '../src/components/Toast/Toast';
 import styles from './page.module.css';
 
 const DEFAULT_TEMPLATE: Template = {
@@ -16,6 +17,7 @@ export default function Home() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [currentPreviewMode, setCurrentPreviewMode] = useState<Template['previewMode']>('desktop');
+  const [showToast, setShowToast] = useState(false);
 
   const handleSave = (template: Template) => {
     const isNew = template.id === 'new';
@@ -33,6 +35,7 @@ export default function Home() {
     });
     
     setSelectedTemplate(updatedTemplate);
+    setShowToast(true);
   };
 
   const handleNewTemplate = () => {
@@ -51,6 +54,14 @@ export default function Home() {
     }
   };
 
+  const handleDeleteTemplate = (templateId: string) => {
+    setTemplates(prev => prev.filter(t => t.id !== templateId));
+    if (selectedTemplate?.id === templateId) {
+      setSelectedTemplate(null);
+    }
+    setShowToast(true);
+  };
+
   return (
     <div className={styles.container}>
       <TemplateSidebar
@@ -58,13 +69,14 @@ export default function Home() {
         onTemplateSelect={handleTemplateSelect}
         selectedTemplateId={selectedTemplate?.id}
         onNewTemplate={handleNewTemplate}
+        onDeleteTemplate={handleDeleteTemplate}
       />
       <main className={styles.main}>
         {selectedTemplate ? (
           <TemplatePreview
             initialTemplate={selectedTemplate}
             onSave={handleSave}
-            initialEditMode={true}
+            initialEditMode={selectedTemplate.id === 'new'}
             onPreviewModeChange={handlePreviewModeChange}
           />
         ) : (
@@ -76,6 +88,12 @@ export default function Home() {
           </div>
         )}
       </main>
+      {showToast && (
+        <Toast 
+          message={selectedTemplate ? "Template was saved" : "Template was deleted"} 
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 }
